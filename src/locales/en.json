@@ -151,9 +151,6 @@
         "buips": {
             "title": "BUIPs (Bitcoin Unlimited Improvement Proposals)"
         },
-        "nodes": {
-            "title" : "Bitcoin cash nodes counting"
-        },
         "nakamotostudies": {
             "title" : "The Satoshi Nakamoto Archive",
             "url" : "Nakamotostudies.org",

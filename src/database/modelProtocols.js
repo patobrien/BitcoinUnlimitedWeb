@@ -1,15 +1,15 @@
-'use strict';
+"use strict";
 
-import { strings } from '../public/lib/i18n';
-import uuidv4 from 'uuid/v4';
-import { getKeyForType } from '../helpers/helpers.js';
+import { strings } from "../public/lib/i18n";
+import uuidv4 from "uuid/v4";
+import { getKeyForType } from "../helpers/helpers.js";
 
 /**
  * [contentNames Declare types that require processing]
  * E.g., const contentNames = ['Post','Hero','User','Yourmodelname' ...];
  * @type {Array}
  */
-const contentNames = ['Post', 'Hero', 'User', 'Alert', 'Data', 'Admin'];
+const contentNames = ["Post", "Hero", "User", "Alert", "Data", "Admin"];
 
 /**
  * [protocol The protocol object holds fuctions that can be looped through to perform
@@ -24,12 +24,12 @@ const protocol = {};
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.setPrimaryKey = data => {
-    let key = getKeyForType(data.realmType);
-    if (!data[key]) {
-        data[key] = uuidv4();
-    }
-    return data;
-}
+  let key = getKeyForType(data.realmType);
+  if (!data[key]) {
+    data[key] = uuidv4();
+  }
+  return data;
+};
 
 /**
  * [setCreated Deletes the created date if not specified.]
@@ -37,11 +37,11 @@ protocol.setPrimaryKey = data => {
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.setCreated = data => {
-    if (data.created === '') {
-        delete data.created;
-    }
-    return data;
-}
+  if (!data.created) {
+    data.created = new Date();
+  }
+  return data;
+};
 
 /**
  * [setUpdated Sets the updated date.]
@@ -49,9 +49,9 @@ protocol.setCreated = data => {
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.setUpdated = data => {
-    data.updated = new Date();
-    return data;
-}
+  data.updated = new Date();
+  return data;
+};
 
 /**
  * [setPublished Set the published value if it exists.]
@@ -59,9 +59,12 @@ protocol.setUpdated = data => {
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.setPublished = data => {
-    data.published = (typeof data.published !== 'undefined' && data.published === 'true') ? true : false;
-    return data;
-}
+  data.published =
+    typeof data.published !== "undefined" && data.published === "true"
+      ? true
+      : false;
+  return data;
+};
 
 /**
  * [setPublisher Set the author, defaulting to pubkey value if no author is specified.]
@@ -69,14 +72,14 @@ protocol.setPublished = data => {
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.setPublisher = data => {
-    if (data.publisher) {
-        data.publisher = { pubkey: data.publisher };
-    } else if (data.userpubkey) {
-        data.publisher = { pubkey: data.userpubkey };
-    }
-    delete data.userpubkey;
-    return data;
-}
+  if (data.publisher) {
+    data.publisher = { pubkey: data.publisher };
+  } else if (data.userpubkey) {
+    data.publisher = { pubkey: data.userpubkey };
+  }
+  delete data.userpubkey;
+  return data;
+};
 
 /**
  * [validateAlertType Make sure the passed alert type is correct. These values
@@ -85,16 +88,16 @@ protocol.setPublisher = data => {
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.validateAlertType = data => {
-    let { alert_type: type } = data;
-    if (type) {
-        if (['announce', 'alert', 'security'].indexOf(type) === -1) {
-            delete data.alert_type;
-        }
-    } else {
-        delete data.alert_type;
+  let { alert_type: type } = data;
+  if (type) {
+    if (["announce", "alert", "security"].indexOf(type) === -1) {
+      delete data.alert_type;
     }
-    return data;
-}
+  } else {
+    delete data.alert_type;
+  }
+  return data;
+};
 
 /**
  * [checkPubkey Check for a user's pubkey.]
@@ -102,11 +105,11 @@ protocol.validateAlertType = data => {
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.checkPubkey = data => {
-    if (!data.pubkey) {
-        throw 'Pubkey does not exist. fn: protocol.User()';
-    }
-    return data;
-}
+  if (!data.pubkey) {
+    throw "Pubkey does not exist. fn: protocol.User()";
+  }
+  return data;
+};
 
 /**
  * [removeRole Remove a role value. Currently not used.]
@@ -114,9 +117,9 @@ protocol.checkPubkey = data => {
  * @return {Object}      [Modified Object ready for next operation or to be saved.]
  */
 protocol.removeRole = data => {
-    delete data.role;
-    return data;
-}
+  delete data.role;
+  return data;
+};
 
 /**
  * [runOps Loops through each model's operations and performs explicitly specified changes.]
@@ -125,11 +128,11 @@ protocol.removeRole = data => {
  * @return {Object}      [The data post-changes.]
  */
 const runOps = (ops, data) => {
-    ops.map(fn => {
-        data = protocol[fn](data);
-    });
-    return data;
-}
+  ops.map(fn => {
+    data = protocol[fn](data);
+  });
+  return data;
+};
 
 /*
  * Declare custom processing before realm objects are saved or updated
@@ -146,9 +149,15 @@ const runOps = (ops, data) => {
  * @return {Object}  [The data post-changes.]
  */
 protocol.Post = data => {
-    let ops = ['setPrimaryKey', 'setCreated', 'setPublisher', 'setPublished', 'setUpdated'];
-    return runOps(ops, data);
-}
+  let ops = [
+    "setPrimaryKey",
+    "setCreated",
+    "setPublisher",
+    "setPublished",
+    "setUpdated"
+  ];
+  return runOps(ops, data);
+};
 
 /**
  * [Hero Operations on data before saving.]
@@ -156,9 +165,15 @@ protocol.Post = data => {
  * @return {Object}  [The data post-changes.]
  */
 protocol.Hero = data => {
-    let ops = ['setPrimaryKey', 'setCreated', 'setPublisher', 'setPublished', 'setUpdated'];
-    return runOps(ops, data);
-}
+  let ops = [
+    "setPrimaryKey",
+    "setCreated",
+    "setPublisher",
+    "setPublished",
+    "setUpdated"
+  ];
+  return runOps(ops, data);
+};
 
 /**
  * [User Operations on data before saving.]
@@ -166,9 +181,9 @@ protocol.Hero = data => {
  * @return {Object}  [The data post-changes.]
  */
 protocol.User = data => {
-    let ops = ['checkPubkey', 'setCreated'];
-    return runOps(ops, data);
-}
+  let ops = ["checkPubkey", "setCreated"];
+  return runOps(ops, data);
+};
 
 /**
  * [Alert Operations on data before saving.]
@@ -176,9 +191,14 @@ protocol.User = data => {
  * @return {Object}  [The data post-changes.]
  */
 protocol.Alert = data => {
-    let ops = ['setPrimaryKey', 'setCreated', 'setPublished', 'validateAlertType'];
-    return runOps(ops, data);
-}
+  let ops = [
+    "setPrimaryKey",
+    "setCreated",
+    "setPublished",
+    "validateAlertType"
+  ];
+  return runOps(ops, data);
+};
 
 /**
  * [Data Operations on data before saving.]
@@ -186,9 +206,9 @@ protocol.Alert = data => {
  * @return {Object}  [The data post-changes.]
  */
 protocol.Data = data => {
-    let ops = ['setPrimaryKey', 'setCreated', 'setUpdated', 'setPublished'];
-    return runOps(ops, data);
-}
+  let ops = ["setPrimaryKey", "setCreated", "setUpdated", "setPublished"];
+  return runOps(ops, data);
+};
 
 /**
  * [Admin Operations on data before saving.]
@@ -196,9 +216,9 @@ protocol.Data = data => {
  * @return {Object}  [The data post-changes.]
  */
 protocol.Admin = data => {
-    let ops = ['removeRole'];
-    return runOps(ops, data);
-}
+  let ops = ["removeRole"];
+  return runOps(ops, data);
+};
 
 /**
  * [typeHasProtocol Helper if the type has data transformations.]
@@ -212,13 +232,16 @@ const typeHasProtocol = type => contentNames.indexOf(type) !== -1;
  * @param {String} type [The realmType to change data on.]
  * @param {Promise} data []
  */
-const setProtocolValues = (type, data) => new Promise((resolve, reject) => {
+const setProtocolValues = (type, data) =>
+  new Promise((resolve, reject) => {
     if (!typeHasProtocol(type)) return resolve(data);
     try {
-        resolve(protocol[type](data));
-    } catch(e) { reject(e) }
-});
+      resolve(protocol[type](data));
+    } catch (e) {
+      reject(e);
+    }
+  });
 
 module.exports = {
-    setProtocolValues
-}
+  setProtocolValues
+};
